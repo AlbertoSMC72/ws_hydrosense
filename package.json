@@ -1,0 +1,16 @@
+{
+  "name": "backend_creater_hydrosense",
+  "version": "1.0.0",
+  "description": "Backend para una aplicación web",
+  "main": "app.js",
+  "type": "module",
+  "scripts": {
+    "start": "nodemon ./app.js"
+  },
+  "dependencies": {
+    "nodemon": "^3.1.4",
+    "pino": "^9.3.1",
+    "pino-pretty": "^11.2.1",
+    "ws": "^8.18.0"
+  }
+}
