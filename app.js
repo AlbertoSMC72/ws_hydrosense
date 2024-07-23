@@ -1,4 +1,5 @@
-import WebSocket, { WebSocketServer } from 'ws';
+import { Server } from 'socket.io';
+import http from 'http';
 import pino from 'pino';
 import pinoPretty from 'pino-pretty';
 
@@ -7,36 +8,46 @@ const logger = pino(pinoPretty({
     colorize: true
 }));
 
-// Crear una instancia del servidor WebSocket en el puerto 8080
-const wss = new WebSocketServer({ port: 8080 });
+// Crear un servidor HTTP
+const server = http.createServer();
 
-wss.on('connection', function connection(ws) {
+// Crear una instancia de Socket.IO sobre el servidor HTTP
+const io = new Server(server, {
+    // Configuraciones adicionales si son necesarias
+    cors: {
+        origin: "*",
+        methods: ["GET", "POST"]
+    }
+});
+
+// Manejar nuevas conexiones de clientes
+io.on('connection', (socket) => {
     logger.info('Cliente conectado');
 
     // Enviar un mensaje al cliente conectado
-    ws.send(JSON.stringify({ message: 'Bienvenido al servidor en tiempo real' }));
+    socket.emit('message', { message: 'Bienvenido al servidor en tiempo real' });
 
     // Manejar mensajes recibidos del cliente
-    ws.on('message', function incoming(message) {
-        //logger.info(`Recibido: ${message}`);
+    socket.on('message', (message) => {
+        logger.info(`Recibido: ${message}`);
 
-        // Procesar el mensaje recibido y reenviarlo a todos los clientes conectados
-        wss.clients.forEach(function each(client) {
-            if (client.readyState === WebSocket.OPEN) {
-                client.send(message);
-            }
-        });
+        // Reenviar el mensaje a todos los clientes conectados
+        io.emit('message', message);
     });
 
     // Manejar la desconexión del cliente
-    ws.on('close', function close() {
+    socket.on('disconnect', () => {
         logger.info('Cliente desconectado');
     });
 
     // Manejar errores
-    ws.on('error', function error(err) {
-        //logger.error('WebSocket error:', err);
+    socket.on('error', (err) => {
+        logger.error('Socket.IO error:', err);
     });
 });
 
-logger.info('Servidor WebSocket en tiempo real escuchando en el puerto 8080');
+// Escuchar en el puerto 8080
+const PORT = 8080;
+server.listen(PORT, () => {
+    logger.info(`Servidor WebSocket en tiempo real escuchando en el puerto ${PORT}`);
+});
