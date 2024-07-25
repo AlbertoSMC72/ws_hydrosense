@@ -13,7 +13,6 @@ const server = http.createServer();
 
 // Crear una instancia de Socket.IO sobre el servidor HTTP
 const io = new Server(server, {
-    // Configuraciones adicionales si son necesarias
     cors: {
         origin: "*",
         methods: ["GET", "POST"]
@@ -29,10 +28,9 @@ io.on('connection', (socket) => {
 
     // Manejar mensajes recibidos del cliente
     socket.on('message', (message) => {
-        logger.info(`Recibido: ${message}`);
-
         // Reenviar el mensaje a todos los clientes conectados
-        io.emit('message', message);
+        io.emit('message', JSON.parse(message));
+        logger.info('Enviado a todos los clientes:', message);
     });
 
     // Manejar la desconexión del cliente

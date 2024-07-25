@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Socket.IO Client</title>
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+        #messages {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            height: 200px;
+            overflow-y: scroll;
+        }
+        #messageInput {
+            width: 80%;
+            padding: 10px;
+            margin-top: 10px;
+        }
+        #sendButton {
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Socket.IO Client</h1>
+    <div id="messages"></div>
+    <input type="text" id="messageInput" placeholder="Escribe un mensaje...">
+    <button id="sendButton">Enviar</button>
+
+    <script>
+        // Conectar al servidor Socket.IO
+        const socket = io('http://localhost:8080');
+
+        // Obtener elementos del DOM
+        const messageInput = document.getElementById('messageInput');
+        const sendButton = document.getElementById('sendButton');
+        const messagesDiv = document.getElementById('messages');
+
+        // Manejar mensajes recibidos del servidor
+        socket.on('message', (message) => {
+            const messageElement = document.createElement('div');
+            messageElement.textContent = `Mensaje del servidor: ${JSON.stringify(message)}`;
+            messagesDiv.appendChild(messageElement);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        });
+
+        // Enviar un mensaje al servidor cuando se haga clic en el botón
+        sendButton.addEventListener('click', () => {
+            const message = messageInput.value;
+            if (message) {
+                socket.emit('message', { text: message });
+                messageInput.value = '';
+            }
+        });
+
+        // Manejar errores
+        socket.on('error', (err) => {
+            console.error('Error de Socket.IO:', err);
+        });
+    </script>
+</body>
+</html>
