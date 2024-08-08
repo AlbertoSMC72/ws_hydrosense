@@ -24,12 +24,11 @@ io.on('connection', (socket) => {
     logger.info('Cliente conectado');
 
     // Enviar un mensaje al cliente conectado
-    socket.emit('message', { message: 'Bienvenido al servidor en tiempo real' });
 
     // Manejar mensajes recibidos del cliente
     socket.on('message', (message) => {
         // Reenviar el mensaje a todos los clientes conectados
-        io.emit('message', JSON.parse(message));
+        io.emit('message', message);
         logger.info('Enviado a todos los clientes:', message);
     });
 
